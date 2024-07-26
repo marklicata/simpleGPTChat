@@ -1,5 +1,4 @@
-import json
-import datetime
+import json, datetime
 
 jsonFile = 'json/memories.json'
 

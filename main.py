@@ -1,9 +1,7 @@
-from datetime import date, timedelta
+from datetime import date
 from helpers.memoryHelper import Memory
 from helpers.openAIHelper import OAIHelper
-import wx
-import json
-
+import wx, json, os
 
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kw):
@@ -82,7 +80,7 @@ class MyFrame(wx.Frame):
         self.text_ctrls['memories'].SetValue(str(formatted_json))
 
     def startStdConvo(self, event):
-        MyFrame.startConvo(self,event)
+        MyFrame.startConvo(self,event,0)
 
     def startRouteConvo(self, event):  
         MyFrame.startConvo(self,event,1)
@@ -101,15 +99,14 @@ class MyFrame(wx.Frame):
         self.text_ctrls['userInput'].SetFocus()
     
     def showFullConversation(self, event):
-        self.text_ctrls['output'].SetValue(OAIHelper.getFullConversation())
+        self.text_ctrls['output'].SetValue(os.environ["fullConversationStr"])
     
     def saveConversationToMemory(self, event):
         dialog = wx.MessageDialog(self, "Ready to save your conversation to memory?", "Confirm", wx.YES_NO | wx.ICON_QUESTION)
         result = dialog.ShowModal()
         if result == wx.ID_YES:
             self.SetCursor(wx.Cursor(wx.CURSOR_WAIT))
-            fullConvo = OAIHelper.getFullConversation()
-            summaryConvo = OAIHelper.summarizeConvo(fullConvo)
+            summaryConvo = OAIHelper.summarizeConvo(os.environ["fullConversationStr"])
             if summaryConvo is None:
                     self.SetCursor(wx.NullCursor)
                     wx.MessageBox("Conversation failed to save!", "Info", wx.OK | wx.ICON_INFORMATION)

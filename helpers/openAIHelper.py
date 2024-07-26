@@ -1,14 +1,13 @@
-import os
+import os, json
 from openai import OpenAI
-#from helpers.memoryHelper import Memory
-import json
 
 #CONFIGS
-#os.environ["OPENAI_API_KEY"] = '## YOUR OPENAI USER KEY ##'
-#os.environ["OPENAI_ORG_ID"] = '## YOUR OPENAI ORG KEY ##'
+os.environ["OPENAI_API_KEY"] = '## YOUR OPENAI USER KEY ##'
+os.environ["OPENAI_ORG_ID"] = '## YOUR OPENAI ORG KEY ##'
+os.environ["fullConversationStr"] = " "
 
+# RouteLLM controller must be imported after OAI keys are set.
 from routellm.controller import Controller
-fullConversationStr = " "
 
 class OAIHelper: 
 
@@ -35,8 +34,7 @@ class OAIHelper:
             """ + str(memories) + """
             
             """
-        global fullConversationStr
-        fullConversationStr += "\n" + userInput + "\n"
+        os.environ["fullConversationStr"] += "\n" + userInput + "\n"
         
         if convoType == 1:
             returnStr = OAIHelper.callRouteLLMConversation(summaryInstructions + " " + userInput)
@@ -53,16 +51,17 @@ class OAIHelper:
     def callOpenAIConversation(UserContent):
         client = OAIHelper.initConvo()
         dynamicModel = OAIHelper.modelSelectionHelper(UserContent)
+        returnStr = dynamicModel + "\n\n"
+        os.environ["fullConversationStr"] += dynamicModel + "\n\n"
         stream = client.chat.completions.create(
             model=dynamicModel,
             messages=[{"role": "user", "content": UserContent}],
             stream=True,)
-        returnStr = ""
         for chunk in stream:
             if chunk.choices[0].delta.content is not None:
                 content = chunk.choices[0].delta.content
                 returnStr += content
-                fullConversationStr += str(content)
+                os.environ["fullConversationStr"] += str(content)
         return returnStr
     
 
@@ -93,12 +92,7 @@ class OAIHelper:
                 content = chunk.choices[0].delta.content
                 response += content
         return response
-    
-
-    # gets the full conversation for a session
-    def getFullConversation():
-        return fullConversationStr
-    
+        
 
     #OpenAI Helper. Decides which model to use for a given prompt.
     def modelSelectionHelper(userPrompt):
@@ -158,10 +152,10 @@ class OAIHelper:
             model="router-mf-0.11593",
             messages=[{"role": "user", "content": UserContent}],
             stream=True,)
-        returnStr = stream.model + "\n"
+        returnStr = stream.model + "\n\n"
         for chunk in stream:
             if chunk.choices[0].delta.content is not None:
                 content = chunk.choices[0].delta.content
                 returnStr += content
-                fullConversationStr += str(content)
+                os.environ["fullConversationStr"] += str(content)
         return returnStr
