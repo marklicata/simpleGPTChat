@@ -94,10 +94,15 @@ class MyFrame(wx.Frame):
             self.SetCursor(wx.Cursor(wx.CURSOR_WAIT))
             fullConvo = OAIHelper.getFullConversation()
             summaryConvo = OAIHelper.summarizeConvo(fullConvo)
-            summaryJSON = json.loads(summaryConvo)
-            Memory.putMemory(summaryJSON["TITLE"], summaryJSON["MEMORY"], date.today())
-            self.SetCursor(wx.NullCursor)
-            wx.MessageBox("Conversation successfully saved!", "Info", wx.OK | wx.ICON_INFORMATION)
+            if summaryConvo is None:
+                    self.SetCursor(wx.NullCursor)
+                    wx.MessageBox("Conversation failed to save!", "Info", wx.OK | wx.ICON_INFORMATION)
+                    raise ValueError("Failed to summarize conversation")
+            elif summaryConvo is not None:
+                summaryJSON = json.loads(summaryConvo)
+                Memory.putMemory(summaryJSON["TITLE"], summaryJSON["MEMORY"], date.today())
+                self.SetCursor(wx.NullCursor)
+                wx.MessageBox("Conversation successfully saved!", "Info", wx.OK | wx.ICON_INFORMATION)
             MyFrame.loadMemories(self)
         dialog.Destroy()
 
