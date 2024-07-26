@@ -42,9 +42,15 @@ class MyFrame(wx.Frame):
         self.text_ctrls['userInput'] = wx.TextCtrl(panel)
         right_sizer.Add(self.text_ctrls['userInput'], proportion=1, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
         
-        # Add a button
-        self.buttons['submit'] = wx.Button(panel, label="Submit")
-        right_sizer.Add(self.buttons['submit'], flag=wx.ALIGN_CENTER | wx.ALL, border=10)
+        # Add LLM router button
+        self.buttons['submitStd'] = wx.Button(panel, label="Use standard router")
+        right_sizer.Add(self.buttons['submitStd'], flag=wx.ALIGN_CENTER | wx.ALL, border=10)
+        # Add RouteLLM buttom
+        self.buttons['submitRoute'] = wx.Button(panel, label="Use RouteLLM")
+        right_sizer.Add(self.buttons['submitRoute'], flag=wx.ALIGN_CENTER | wx.ALL, border=10)
+        # Add VectorDB buttom
+        self.buttons['submitVector'] = wx.Button(panel, label="Use Vector DB")
+        right_sizer.Add(self.buttons['submitVector'], flag=wx.ALIGN_CENTER | wx.ALL, border=10)
 
         # Add the GPT output text box
         self.text_ctrls['output'] = wx.TextCtrl(panel, style=wx.TE_MULTILINE)
@@ -58,7 +64,9 @@ class MyFrame(wx.Frame):
         panel.SetSizer(hbox)
         
         # Bind the button event
-        self.buttons['submit'].Bind(wx.EVT_BUTTON, self.startConvo)
+        self.buttons['submitStd'].Bind(wx.EVT_BUTTON, self.startStdConvo)
+        self.buttons['submitRoute'].Bind(wx.EVT_BUTTON, self.startRouteConvo)
+        self.buttons['submitVector'].Bind(wx.EVT_BUTTON, self.startVectorConvo)        
         self.buttons['saveConvo'].Bind(wx.EVT_BUTTON, self.saveConversationToMemory)
         self.buttons['fullConvo'].Bind(wx.EVT_BUTTON, self.showFullConversation)
         
@@ -72,13 +80,21 @@ class MyFrame(wx.Frame):
         memories = Memory.getALLMemories()
         formatted_json = json.dumps(memories, indent=4)
         self.text_ctrls['memories'].SetValue(str(formatted_json))
-        
-    
-    def startConvo(self, event):
+
+    def startStdConvo(self, event):
+        MyFrame.startConvo(self,event)
+
+    def startRouteConvo(self, event):  
+        MyFrame.startConvo(self,event,1)
+
+    def startVectorConvo(self, event):  
+        MyFrame.startConvo(self,event,2)
+
+    def startConvo(self, event, convoType):
         # Handle button click event
         self.SetCursor(wx.Cursor(wx.CURSOR_WAIT))
         input_text = self.text_ctrls['userInput'].GetValue()
-        response = OAIHelper.conversationHandler(input_text, self.text_ctrls['memories'].GetValue())
+        response = OAIHelper.conversationHandler(input_text, self.text_ctrls['memories'].GetValue(),convoType)
         self.text_ctrls['output'].SetValue(response)
         self.SetCursor(wx.NullCursor)
         self.text_ctrls['userInput'].SetValue("")

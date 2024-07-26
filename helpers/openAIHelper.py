@@ -1,12 +1,13 @@
 import os
 from openai import OpenAI
-from helpers.memoryHelper import Memory
+#from helpers.memoryHelper import Memory
 import json
 
 #CONFIGS
-os.environ["OpenAI_userKey"] = '## YOUR OPENAI USER KEY ##'
-os.environ["OpenAI_Org"] = '## YOUR OPENAI ORG KEY ##'
-os.environ["OpenAI_projKey"] = '## YOUR OPENAI PROJECT KEY ##'
+#os.environ["OPENAI_API_KEY"] = '## YOUR OPENAI USER KEY ##'
+#os.environ["OPENAI_ORG_ID"] = '## YOUR OPENAI ORG KEY ##'
+
+from routellm.controller import Controller
 fullConversationStr = " "
 
 class OAIHelper: 
@@ -14,9 +15,8 @@ class OAIHelper:
     def initConvo():
         try:
             client = OpenAI(
-                organization=os.environ["OpenAI_Org"],
-                #project=OpenAI_projKey,
-                api_key=os.environ["OpenAI_userKey"]
+                organization=os.environ["OPENAI_ORG_ID"],
+                api_key=os.environ["OPENAI_API_KEY"]
                 )
         except RuntimeError:
             print("error initializing OpenAI connection")
@@ -24,7 +24,7 @@ class OAIHelper:
 
 
     #Conversation manager
-    def conversationHandler(userInput, memories):
+    def conversationHandler(userInput, memories, convoType):
         summaryInstructions = """
             The following is a JSON string will summaries of all previous conversations by this user.
             The JSON object includes a TITLE and CONTENT, which should be used. The ID and DATE can be ignored.
@@ -37,7 +37,15 @@ class OAIHelper:
             """
         global fullConversationStr
         fullConversationStr += "\n" + userInput + "\n"
-        returnStr = OAIHelper.callOpenAIConversation(summaryInstructions + " " + userInput)
+        
+        if convoType == 1:
+            returnStr = OAIHelper.callRouteLLMConversation(summaryInstructions + " " + userInput)
+        #elif convoType == 2:
+            # for using models in a vector db store. Not built yet. 
+            ## returnStr = OAIHelper.
+        else:
+            returnStr = OAIHelper.callOpenAIConversation(summaryInstructions + " " + userInput)
+
         return returnStr
     
 
@@ -133,3 +141,27 @@ class OAIHelper:
                 content = chunk.choices[0].delta.content
                 response += content
         return response
+    
+
+    # Uses RouteLLM to determine the model before making a call to OpenAI.
+    def callRouteLLMConversation(UserContent):
+        try:
+            client = Controller(
+                        routers=["mf"],
+                        strong_model="gpt-4o",
+                        weak_model="gpt-4o-mini"
+            )
+        except RuntimeError:
+            print("error initializing RouteLLM client")
+
+        stream = client.chat.completions.create(
+            model="router-mf-0.11593",
+            messages=[{"role": "user", "content": UserContent}],
+            stream=True,)
+        returnStr = stream.model + "\n"
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
+                content = chunk.choices[0].delta.content
+                returnStr += content
+                fullConversationStr += str(content)
+        return returnStr
