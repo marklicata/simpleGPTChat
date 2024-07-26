@@ -36,7 +36,6 @@ class OAIHelper:
             
             """
         global fullConversationStr
-        flag = False
         fullConversationStr += "\n" + userInput + "\n"
         returnStr = OAIHelper.callOpenAIConversation(summaryInstructions + " " + userInput)
         return returnStr
@@ -44,7 +43,6 @@ class OAIHelper:
 
     #OpenAI Conversation Helper. Calls OpenAI and streams the results.
     def callOpenAIConversation(UserContent):
-        global fullConversationStr
         client = OAIHelper.initConvo()
         dynamicModel = OAIHelper.modelSelectionHelper(UserContent)
         stream = client.chat.completions.create(
@@ -60,7 +58,7 @@ class OAIHelper:
         return returnStr
     
 
-    #Conversation manager
+    #Summarizes the entire conversation
     def summarizeConvo(convoStr):
         summaryInstructions = """
             The following content is the entire converstaion between a user and an AI chat system. This conversation needs to be summarized for long-term memory storage.
