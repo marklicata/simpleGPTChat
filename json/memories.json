@@ -1,0 +1,25 @@
+{
+    "memories": {
+        "updateDate": "2024-07-23",
+        "memoryList": [
+            {
+                "id": "1",
+                "title": "Capital Cities",
+                "content": "The user asked about the capitals of France and Germany. The AI responded that the capital of France is Paris and the capital of Germany is Berlin.",
+                "date": "2024-07-23"
+            },
+            {
+                "id": "2",
+                "title": "2021 Sports Championships",
+                "content": "The Tampa Bay Buccaneers won the 2021 Super Bowl (LV) against the Kansas City Chiefs, 31-9. The Atlanta Braves claimed the 2021 World Series by defeating the Houston Astros. The Tampa Bay Lightning secured the 2021 Stanley Cup, winning against the Montreal Canadiens.",
+                "date": "2024-07-23"
+            },
+            {
+                "id": "3",
+                "title": "Lake Chelan Overview",
+                "content": "Lake Chelan in Washington state is 50 miles long and the third-deepest lake in the U.S. Known for outdoor recreation, tourism hubs include the town of Chelan and the remote village of Stehekin. The area has historical significance and a growing wine industry.",
+                "date": "2024-07-25"
+            }
+        ]
+    }
+}

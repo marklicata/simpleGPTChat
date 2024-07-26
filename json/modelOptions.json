@@ -1,0 +1,32 @@
+{
+    "models": {
+        "updateDate": "2024-07-23",
+        "GPTModels": [
+            {
+                "name": "GPT-4o",
+                "description": "GPT-4o ('o' for 'omni') is our most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is much more efficient—it generates text 2x faster and is 50% cheaper. Additionally, GPT-4o has the best vision and performance across non-English languages of any of our models. GPT-4o is available in the OpenAI API to paying customers. Learn how to use GPT-4o in our text generation guide.",
+                "modelId": "gpt-4o",
+                "trainingData": "Up to Oct 2023"
+            },
+            {
+                "name": "GPT-4o mini",
+                "description": "GPT-4o mini ('o' for 'omni') is our most advanced model in the small models category, and our cheapest model yet. It is multimodal (accepting text or image inputs and outputting text), has higher intelligence than gpt-3.5-turbo but is just as fast. It is meant to be used for smaller tasks, including vision tasks. We recommend choosing gpt-4o-mini where you would have previously used gpt-3.5-turbo as this model is more capable and cheaper.",
+                "modelId": "gpt-4o-mini",
+                "trainingData": "Up to Oct 2023"
+            },
+            {
+                "name": "GPT-4 Turbo",
+                "description": "GPT-4 is a large multimodal model (accepting text or image inputs and outputting text) that can solve difficult problems with greater accuracy than any of our previous models, thanks to its broader general knowledge and advanced reasoning capabilities. GPT-4 is available in the OpenAI API to paying customers. Like gpt-3.5-turbo, GPT-4 is optimized for chat but works well for traditional completions tasks using the Chat Completions API. Learn how to use GPT-4 in our text generation guide.",
+                "modelId": "gpt-4-turbo",
+                "trainingData": "Up to Dec 2023"
+            }
+        ],
+        "embeddingModels": [
+            {
+                "name": "Embeddings",
+                "description": "Embeddings are a numerical representation of text that can be used to measure the relatedness between two pieces of text. Embeddings are useful for search, clustering, recommendations, anomaly detection, and classification tasks.",
+                "modelId": "text-embedding-3-small"
+            }
+        ]
+    }
+}
