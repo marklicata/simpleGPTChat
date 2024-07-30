@@ -2,9 +2,14 @@ import json, datetime
 
 jsonFile = 'json/memories.json'
 
+###
+# CLASS FOR MANAGING LONG-TERM MEMORIES
+###
 class Memory:
     
+    ###
     # OPENS THE MEMORY JSON FILE
+    ###
     def openJSON():
         try:
             with open(jsonFile, "r") as file:
@@ -12,13 +17,17 @@ class Memory:
         except FileNotFoundError:
                 data = [] #creates an empty file
         return data
-    
+
+    ###
     # RETURNS A LIST OF MEMORIES IN THE JSON
+    ###
     def getALLMemories():
         data = Memory.openJSON()
         return data["memories"]["memoryList"]
     
+    ###
     # RETURNS 1-N MEMORIES THAT CONTAIN A GIVEN STRING
+    ###
     def getMemory(str):
         data = Memory.openJSON()
         subList = {"memories":[]}
@@ -27,7 +36,9 @@ class Memory:
                 subList["memories"].append(mem)
         return subList
     
+    ###
     # ADDS A NEW MEMORY TO THE JSON
+    ###
     def putMemory(topic, content, date):
         data = Memory.openJSON()
         
@@ -47,8 +58,10 @@ class Memory:
         with open(jsonFile, "w") as file:
             json.dump(data, file)
             file.close()
-
+    
+    ###
     # DELETES A SINGLE MEMORY FROM THE JSON
+    ###
     def deleteMemoryById(_id):
         data = Memory.openJSON()
         memoryList = data["memories"]["memoryList"]
@@ -60,7 +73,9 @@ class Memory:
             json.dump(data, file)
             file.close()
 
+    ###
     # SCRUBS THE MEMORY OLD ENTRIES AND DELETES
+    ###
     def memoryScrubber(deleteDate):
         data = Memory.openJSON()
         memoryList = data["memories"]["memoryList"]

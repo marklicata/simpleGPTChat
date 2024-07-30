@@ -1,8 +1,13 @@
 from datetime import date
 from helpers.memoryHelper import Memory
-from helpers.openAIHelper import OAIHelper
+from helpers.conversationHelper import OAIHelper
 import wx, json, os
 
+
+
+###
+# CLASS FOR GENERATING THE USER EXPERIENCE FOR THE USER
+###
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kw):
         super(MyFrame, self).__init__(*args, **kw)
@@ -73,21 +78,41 @@ class MyFrame(wx.Frame):
         self.Show(True)
         MyFrame.loadMemories(self)
 
+
+###
+# CLASS FOR MANAGING USER INTERACTIONS ON THE PAGE
+###
+class InteractionHandler():
+    ###
+    # Loads all the memory from long-term storage.
+    ###
     def loadMemories(self):
         # Load memories
         memories = Memory.getALLMemories()
         formatted_json = json.dumps(memories, indent=4)
         self.text_ctrls['memories'].SetValue(str(formatted_json))
 
+    ###
+    # Uses GPT-4o-mini to specify a model for a prompt
+    ###
     def startStdConvo(self, event):
         MyFrame.startConvo(self,event,0)
 
+    ###
+    # Uses RouteLLM to define the model for a prompt
+    ###
     def startRouteConvo(self, event):  
         MyFrame.startConvo(self,event,1)
-
+    
+    ###
+    # Uses the vector DB to retrieve a model for a prompt
+    ###
     def startVectorConvo(self, event):  
         MyFrame.startConvo(self,event,2)
 
+    ###
+    # When a submit button is clicked, this function manages the interaction and calls conversation helper.
+    ###
     def startConvo(self, event, convoType):
         # Handle button click event
         self.SetCursor(wx.Cursor(wx.CURSOR_WAIT))
@@ -97,10 +122,15 @@ class MyFrame(wx.Frame):
         self.SetCursor(wx.NullCursor)
         self.text_ctrls['userInput'].SetValue("")
         self.text_ctrls['userInput'].SetFocus()
-    
+
+    ###
+    # retrieves the full conversation, which has been saved to an environment variable.
+    ###
     def showFullConversation(self, event):
         self.text_ctrls['output'].SetValue(os.environ["fullConversationStr"])
-    
+    ###
+    # Takes the full session conversation and saves it to long-term memory.
+    ###
     def saveConversationToMemory(self, event):
         dialog = wx.MessageDialog(self, "Ready to save your conversation to memory?", "Confirm", wx.YES_NO | wx.ICON_QUESTION)
         result = dialog.ShowModal()
@@ -118,6 +148,7 @@ class MyFrame(wx.Frame):
                 wx.MessageBox("Conversation successfully saved!", "Info", wx.OK | wx.ICON_INFORMATION)
             MyFrame.loadMemories(self)
         dialog.Destroy()
+
 
 
 if __name__ == '__main__':

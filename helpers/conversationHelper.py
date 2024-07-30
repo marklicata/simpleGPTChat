@@ -1,29 +1,24 @@
-import os, json
+import os, json, configparser
 from openai import OpenAI
+from pinecone import Pinecone
 
-#CONFIGS
-os.environ["OPENAI_API_KEY"] = '## YOUR OPENAI USER KEY ##'
-os.environ["OPENAI_ORG_ID"] = '## YOUR OPENAI ORG KEY ##'
 os.environ["fullConversationStr"] = " "
 
 # RouteLLM controller must be imported after OAI keys are set.
 from routellm.controller import Controller
 
-class OAIHelper: 
-
-    def initConvo():
-        try:
-            client = OpenAI(
-                organization=os.environ["OPENAI_ORG_ID"],
-                api_key=os.environ["OPENAI_API_KEY"]
-                )
-        except RuntimeError:
-            print("error initializing OpenAI connection")
-        return client
+config = configparser.ConfigParser()
+config.read('configs/config.ini')
 
 
-    #Conversation manager
-    def conversationHandler(userInput, memories, convoType):
+###
+# CLASS FOR MANAGING CHAT CONVERSATIONS
+###
+class ConversationHandler():
+    ###
+    # Starts the chat conversation
+    ###
+    def initiateChatConversation(userInput, memories, convoType):
         summaryInstructions = """
             The following is a JSON string will summaries of all previous conversations by this user.
             The JSON object includes a TITLE and CONTENT, which should be used. The ID and DATE can be ignored.
@@ -37,17 +32,43 @@ class OAIHelper:
         os.environ["fullConversationStr"] += "\n" + userInput + "\n"
         
         if convoType == 1:
-            returnStr = OAIHelper.callRouteLLMConversation(summaryInstructions + " " + userInput)
-        #elif convoType == 2:
+            returnStr = RouteLLMHelper.callRouteLLMConversation(summaryInstructions + " " + userInput)
+        elif convoType == 2:
             # for using models in a vector db store. Not built yet. 
-            ## returnStr = OAIHelper.
+            returnStr = vectorDBHelper.vectorSearch(userInput)
         else:
             returnStr = OAIHelper.callOpenAIConversation(summaryInstructions + " " + userInput)
 
+    ###
+    # Streams the result for any/all chat conversations
+    ###
+    def streamResults(stream, returnStr=""):
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
+                content = chunk.choices[0].delta.content
+                returnStr += content
+                os.environ["fullConversationStr"] += str(content)
         return returnStr
-    
 
+
+###
+# CLASS FOR MANAGING OPENAI FM CALLS
+###
+class OAIHelper: 
+
+    def initConvo():
+        try:
+            client = OpenAI(
+                organization=config['OPE_AI']['OPENAI_ORG_ID'],
+                api_key=config['OPE_AI']['OPENAI_API_KEY']
+                )
+        except RuntimeError:
+            print("error initializing OpenAI connection")
+        return client
+    
+    ###
     #OpenAI Conversation Helper. Calls OpenAI and streams the results.
+    ###
     def callOpenAIConversation(UserContent):
         client = OAIHelper.initConvo()
         dynamicModel = OAIHelper.modelSelectionHelper(UserContent)
@@ -57,15 +78,12 @@ class OAIHelper:
             model=dynamicModel,
             messages=[{"role": "user", "content": UserContent}],
             stream=True,)
-        for chunk in stream:
-            if chunk.choices[0].delta.content is not None:
-                content = chunk.choices[0].delta.content
-                returnStr += content
-                os.environ["fullConversationStr"] += str(content)
-        return returnStr
+        response = ConversationHandler.streamResults(stream, dynamicModel + "\n\n")
+        return response
     
-
-    #Summarizes the entire conversation
+    ###
+    #Uses an FM to summarize the entire conversation
+    ###
     def summarizeConvo(convoStr):
         summaryInstructions = """
             The following content is the entire converstaion between a user and an AI chat system. This conversation needs to be summarized for long-term memory storage.
@@ -86,15 +104,12 @@ class OAIHelper:
             model=dynamicModel,
             messages=[{"role": "user", "content": summaryInstructions}],
             stream=True,)
-        response = " "
-        for chunk in stream:
-            if chunk.choices[0].delta.content is not None:
-                content = chunk.choices[0].delta.content
-                response += content
+        response = ConversationHandler.streamResults(stream, dynamicModel + "\n\n")
         return response
         
-
+    ###
     #OpenAI Helper. Decides which model to use for a given prompt.
+    ###
     def modelSelectionHelper(userPrompt):
         jsonFile = 'json/modelOptions.json'
 
@@ -129,15 +144,14 @@ class OAIHelper:
             model="gpt-4o-mini", # GPT-4o mini is always used for this first call.
             messages=[{"role": "user", "content": instructions}],
             stream=True,)
-        response = ""
-        for chunk in stream:
-            if chunk.choices[0].delta.content is not None:
-                content = chunk.choices[0].delta.content
-                response += content
+        response = ConversationHandler.streamResults(stream)
         return response
     
-
-    # Uses RouteLLM to determine the model before making a call to OpenAI.
+###
+# CLASS FOR MANAGING ROUTELLM MODEL SELECTION
+###
+class RouteLLMHelper: 
+# Uses RouteLLM to determine the model before making a call to OpenAI.
     def callRouteLLMConversation(UserContent):
         try:
             client = Controller(
@@ -152,10 +166,44 @@ class OAIHelper:
             model="router-mf-0.11593",
             messages=[{"role": "user", "content": UserContent}],
             stream=True,)
-        returnStr = stream.model + "\n\n"
-        for chunk in stream:
-            if chunk.choices[0].delta.content is not None:
-                content = chunk.choices[0].delta.content
-                returnStr += content
-                os.environ["fullConversationStr"] += str(content)
-        return returnStr
+        response = ConversationHandler.streamResults(stream, stream.model + "\n\n")
+        return response
+
+###
+# CLASS USING A VECTOR DB FOR PROMPT->MODEL MATCHING
+###
+class vectorDBHelper():
+    def vectorSearch(userPrompt):
+        client = OAIHelper.initConvo()
+        pc = Pinecone(api_key=config['PINECONE']['PINECONE_API_KEY'])
+        index = pc.Index("gptmodels")
+        queryEmb = client.embeddings.create(input = [userPrompt], model="text-embedding-3-small",dimensions=2).data[0].embedding
+        result = index.query(
+                    vector=queryEmb,
+                    top_k=3,
+                    include_values=True
+                    )
+        return result["matches"][0]['id']
+   
+    
+### LIKELY NOT TO BE USED AGAIN
+#    def storeEmbeddings(text, model="text-embedding-3-small"):
+#        client = OAIHelper.initConvo()
+#        jsonFile = 'json/modelOptions.json'
+#        # Get the model options.
+#        try:
+#            with open(jsonFile, "r") as file:
+#                data = json.load(file)
+#        except FileNotFoundError:
+#                data = [] #creates an empty file
+#
+#        openAImodels = data["models"]["GPTModels"]
+#        for model in openAImodels:
+#            # Convert text data to embeddings
+#            model = str(model).replace("\"", "'")
+#            emb = client.embeddings.create(input = [model], model="text-embedding-3-small",dimensions=2).data[0].embedding
+#
+#            # Store embeddings in Pinecone
+#            pc = Pinecone(api_key=config['PINECONE']['PINECONE_API_KEY'])
+#            index = pc.Index("gptmodels")
+#            index.upsert([(model['modelId'], emb)])

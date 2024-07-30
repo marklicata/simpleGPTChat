@@ -3,22 +3,85 @@
         "updateDate": "2024-07-23",
         "GPTModels": [
             {
-                "name": "GPT-4o",
-                "description": "GPT-4o ('o' for 'omni') is our most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is much more efficient—it generates text 2x faster and is 50% cheaper. Additionally, GPT-4o has the best vision and performance across non-English languages of any of our models. GPT-4o is available in the OpenAI API to paying customers. Learn how to use GPT-4o in our text generation guide.",
-                "modelId": "gpt-4o",
-                "trainingData": "Up to Oct 2023"
-            },
-            {
                 "name": "GPT-4o mini",
                 "description": "GPT-4o mini ('o' for 'omni') is our most advanced model in the small models category, and our cheapest model yet. It is multimodal (accepting text or image inputs and outputting text), has higher intelligence than gpt-3.5-turbo but is just as fast. It is meant to be used for smaller tasks, including vision tasks. We recommend choosing gpt-4o-mini where you would have previously used gpt-3.5-turbo as this model is more capable and cheaper.",
                 "modelId": "gpt-4o-mini",
-                "trainingData": "Up to Oct 2023"
+                "trainingData": "Up to Oct 2023",
+                "details": [{
+                    "tokens per second": "98.9",
+                    "context window in tokens": "128000",
+                    "avg price per 1M tokens": "$0.26",
+                    "input price per 1M tokens": "$0.15",
+                    "output price per 1M tokens": "$0.6",
+                    "time to first token chunk received (FTCR)": "546 milliseconds",
+                    "FTCR short context length":"470 milliseconds",
+                    "FTCR medium context length":"550 milliseconds",
+                    "FTCR long context length":"970 milliseconds",
+                    "general ability": "--",
+                    "reasoning and knowledge": "82%",
+                    "coding": "87.2",
+                    "quality": "88.3",
+                    "accuracy": "0.840",
+                    "coherence": "4.947",
+                    "groundedness":"4.810",
+                    "fluency": "4.950",
+                    "relevance": "4.15",
+                    "GPT similarity": "3.234"
+                }]
+            },
+            {
+                "name": "GPT-4o",
+                "description": "GPT-4o ('o' for 'omni') is our most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is much more efficient—it generates text 2x faster and is 50% cheaper. Additionally, GPT-4o has the best vision and performance across non-English languages of any of our models. GPT-4o is available in the OpenAI API to paying customers. Learn how to use GPT-4o in our text generation guide.",
+                "modelId": "gpt-4o",
+                "trainingData": "Up to Oct 2023",
+                "details": [{
+                    "tokens per second": "82.3",
+                    "context window in tokens": "128000",
+                    "avg price per 1M tokens": "$7.50",
+                    "input price per 1M tokens": "$5.00",
+                    "output price per 1M tokens": "$15.00",
+                    "time to first token chunk received (FTCR)": "446 milliseconds",
+                    "FTCR short context length":"490 milliseconds",
+                    "FTCR medium context length":"450 milliseconds",
+                    "FTCR long context length":"960 milliseconds",
+                    "general ability": "1287",
+                    "reasoning and knowledge": "89%",
+                    "coding": "90.2",
+                    "quality": "100",
+                    "accuracy": "0.854",
+                    "coherence": "4.947",
+                    "groundedness":"4.09",
+                    "fluency": "4.951",
+                    "relevance": "4.19",
+                    "GPT similarity": "3.232"
+                }]
             },
             {
                 "name": "GPT-4 Turbo",
                 "description": "GPT-4 is a large multimodal model (accepting text or image inputs and outputting text) that can solve difficult problems with greater accuracy than any of our previous models, thanks to its broader general knowledge and advanced reasoning capabilities. GPT-4 is available in the OpenAI API to paying customers. Like gpt-3.5-turbo, GPT-4 is optimized for chat but works well for traditional completions tasks using the Chat Completions API. Learn how to use GPT-4 in our text generation guide.",
                 "modelId": "gpt-4-turbo",
-                "trainingData": "Up to Dec 2023"
+                "trainingData": "Up to Dec 2023",
+                "details": [{
+                    "tokens per second": "29.2",
+                    "context window in tokens": "128000",
+                    "avg price per 1M tokens": "$15.00",
+                    "input price per 1M tokens": "$10.00",
+                    "output price per 1M tokens": "$30.00",
+                    "time to first token chunk received (FTCR)": "603 milliseconds",
+                    "FTCR short context length":"470 milliseconds",
+                    "FTCR medium context length":"600 milliseconds",
+                    "FTCR long context length":"1450 milliseconds",
+                    "general ability": "1256",
+                    "reasoning and knowledge": "86%",
+                    "coding": "85.4",
+                    "quality": "93.8",
+                    "accuracy": "0.877",
+                    "coherence": "4.974",
+                    "groundedness":"--",
+                    "fluency": "4.947",
+                    "relevance": "4.039",
+                    "GPT similarity": "3.235"
+                }]
             }
         ],
         "embeddingModels": [
